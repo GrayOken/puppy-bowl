@@ -1,6 +1,6 @@
 // Use the API_URL variable to make fetch requests to the API.
 // Replace the placeholder with your cohort name (ex: 2109-UNF-HY-WEB-PT)
-const cohortName = "YOUR COHORT NAME HERE";
+const cohortName = "2307-fsa-et-web-sf";
 const API_URL = `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}`;
 
 /**
@@ -10,6 +10,11 @@ const API_URL = `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}`;
 const fetchAllPlayers = async () => {
   try {
     // TODO
+    const response = await fetch(
+      "https://fsa-puppy-bowl.herokuapp.com/api/2307-fsa-et-web-sf/players"
+    );
+    const data = await response.json();
+    return data.data.players;
   } catch (err) {
     console.error("Uh oh, trouble fetching players!", err);
   }
@@ -23,6 +28,13 @@ const fetchAllPlayers = async () => {
 const fetchSinglePlayer = async (playerId) => {
   try {
     // TODO
+    const response = await fetch(
+      `https://fsa-puppy-bowl.herokuapp.com/api/2307-fsa-et-web-sf/players`
+    );
+    const data = await response.json();
+    const player = data.data.players.filter((elem) => elem.id === playerId)[0];
+    console.log(player);
+    return player;
   } catch (err) {
     console.error(`Oh no, trouble fetching player #${playerId}!`, err);
   }
@@ -49,6 +61,25 @@ const fetchSinglePlayer = async (playerId) => {
  */
 const renderAllPlayers = (playerList) => {
   // TODO
+  fetchAllPlayers().then((response) => {
+    document.querySelector("main").innerHTML = "";
+    response.forEach((elem) => {
+      const html = `
+        <div class="card">
+          <div class="title">
+            <h3 class="name">${elem.name}</h3>
+            <h4 class="id">#${elem.id}</h4>
+          </div>
+          <img class="photo" src="${elem.imageUrl}" alt="${elem.name}"></img>
+          <div class=buttons>
+            <button type="button" onclick="renderSinglePlayer(${elem.id})" >Details</button>
+            <button type="button">Remove</button>
+          </div>
+        </div>
+      `;
+      document.querySelector("main").innerHTML += html;
+    });
+  });
 };
 
 /**
@@ -66,6 +97,21 @@ const renderAllPlayers = (playerList) => {
  */
 const renderSinglePlayer = (player) => {
   // TODO
+  fetchSinglePlayer(player).then((response) => {
+    document.querySelector("main").innerHTML = `
+      <div class="details">
+        <h1>${response.name}</h1>
+        <h2>#${response.id}</h2>
+        <p>${response.breed}</p>
+        <button type="button" class="returnBtn" onclick="renderAllPlayers()">Return</button>
+        <img
+          class="full-img"
+          src="${response.imageUrl}"
+          alt="${response.breed}"
+        ></img>
+      </div>
+    `;
+  });
 };
 
 /**
@@ -74,7 +120,6 @@ const renderSinglePlayer = (player) => {
 const init = async () => {
   const players = await fetchAllPlayers();
   renderAllPlayers(players);
-
 };
 
 // This script will be run using Node when testing, so here we're doing a quick
